@@ -52,11 +52,17 @@ contract ProposalContract {
     }
 
     function create(string calldata _title, string calldata _description, uint256 _total_vote_to_end) external onlyOwner {
+        require(bytes(_title).length > 0, "Title must not be empty");
+        require(_total_vote_to_end > 0, "Vote limit must be greater than zero");
+
         counter += 1;
         proposal_history[counter] = Proposal(_title, _description, 0, 0, 0, _total_vote_to_end, false, true);
     }
 
+    // Choices: 0 = pass, 1 = approve, 2 = reject
     function vote(uint8 choice) external active newVoter(msg.sender) {
+        require(choice <= 2, "Invalid choice: use 0 (pass), 1 (approve) or 2 (reject)");
+
         Proposal storage proposal = proposal_history[counter];
         uint256 total_vote = proposal.approve + proposal.reject + proposal.pass;
 
@@ -64,16 +70,14 @@ contract ProposalContract {
 
         if (choice == 1) {
             proposal.approve += 1;
-            proposal.current_state = calculateCurrentState();
         } else if (choice == 2) {
             proposal.reject += 1;
-            proposal.current_state = calculateCurrentState();
-        } else if (choice == 0) {
+        } else {
             proposal.pass += 1;
-            proposal.current_state = calculateCurrentState();
         }
+        proposal.current_state = calculateCurrentState();
 
-        if ((proposal.total_vote_to_end - total_vote == 1) && (choice == 1 || choice == 2 || choice == 0)) {
+        if (proposal.total_vote_to_end - total_vote == 1) {
             proposal.is_active = false;
             voted_addresses = [owner];
         }
