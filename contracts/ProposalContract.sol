@@ -22,13 +22,21 @@ contract ProposalContract {
 
     mapping(uint256 => Proposal) proposal_history; // Recordings of previous proposals
 
+    address[] private voted_addresses; // Addresses that voted on the current proposal
+
     // constructor
     constructor() {
         owner = msg.sender;
+        voted_addresses.push(msg.sender);
     }
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only the owner can call this function");
+        _;
+    }
+
+    modifier active() {
+        require(proposal_history[counter].is_active == true, "The proposal is not active");
         _;
     }
 
