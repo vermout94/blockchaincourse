@@ -79,6 +79,10 @@ contract ProposalContract {
         }
     }
 
+    function terminateProposal() external onlyOwner active {
+        proposal_history[counter].is_active = false;
+    }
+
     // ****************** Helper Functions ***********************
 
     // Custom state logic: two-thirds supermajority with an abstention cap.
