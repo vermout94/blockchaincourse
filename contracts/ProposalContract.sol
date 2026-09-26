@@ -48,7 +48,11 @@ contract ProposalContract {
     // ****************** Execute Functions ***********************
 
     function setOwner(address new_owner) external onlyOwner {
+        require(new_owner != address(0), "New owner must not be the zero address");
         owner = new_owner;
+        if (!isVoted(new_owner)) {
+            voted_addresses.push(new_owner);
+        }
     }
 
     function create(string calldata _title, string calldata _description, uint256 _total_vote_to_end) external onlyOwner {
@@ -56,6 +60,7 @@ contract ProposalContract {
         require(_total_vote_to_end > 0, "Vote limit must be greater than zero");
 
         counter += 1;
+        voted_addresses = [owner];
         proposal_history[counter] = Proposal(_title, _description, 0, 0, 0, _total_vote_to_end, false, true);
     }
 
@@ -85,6 +90,7 @@ contract ProposalContract {
 
     function terminateProposal() external onlyOwner active {
         proposal_history[counter].is_active = false;
+        voted_addresses = [owner];
     }
 
     // ****************** Helper Functions ***********************
