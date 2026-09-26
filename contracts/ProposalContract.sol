@@ -2,6 +2,11 @@
 pragma solidity ^0.8.18;
 
 contract ProposalContract {
+    // ****************** Data ***********************
+
+    // Owner
+    address owner;
+
     uint256 private counter; // Id of the latest proposal
 
     struct Proposal {
@@ -16,6 +21,13 @@ contract ProposalContract {
     }
 
     mapping(uint256 => Proposal) proposal_history; // Recordings of previous proposals
+
+    // constructor
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // ****************** Execute Functions ***********************
 
     function create(string calldata _title, string calldata _description, uint256 _total_vote_to_end) external {
         counter += 1;
