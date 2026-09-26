@@ -111,12 +111,22 @@ contract ProposalContract {
         return enough_participation && supermajority;
     }
 
-    function isVoted(address _address) private view returns (bool) {
+    // ****************** Query Functions ***********************
+
+    function isVoted(address _address) public view returns (bool) {
         for (uint256 i = 0; i < voted_addresses.length; i++) {
             if (voted_addresses[i] == _address) {
                 return true;
             }
         }
         return false;
+    }
+
+    function getCurrentProposal() external view returns (Proposal memory) {
+        return proposal_history[counter];
+    }
+
+    function getProposal(uint256 number) external view returns (Proposal memory) {
+        return proposal_history[number];
     }
 }
