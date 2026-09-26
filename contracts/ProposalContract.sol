@@ -40,6 +40,11 @@ contract ProposalContract {
         _;
     }
 
+    modifier newVoter(address _address) {
+        require(!isVoted(_address), "Address has already voted");
+        _;
+    }
+
     // ****************** Execute Functions ***********************
 
     function setOwner(address new_owner) external onlyOwner {
@@ -71,5 +76,14 @@ contract ProposalContract {
         } else {
             return false;
         }
+    }
+
+    function isVoted(address _address) private view returns (bool) {
+        for (uint256 i = 0; i < voted_addresses.length; i++) {
+            if (voted_addresses[i] == _address) {
+                return true;
+            }
+        }
+        return false;
     }
 }
