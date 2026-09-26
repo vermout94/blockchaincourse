@@ -27,9 +27,18 @@ contract ProposalContract {
         owner = msg.sender;
     }
 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function");
+        _;
+    }
+
     // ****************** Execute Functions ***********************
 
-    function create(string calldata _title, string calldata _description, uint256 _total_vote_to_end) external {
+    function setOwner(address new_owner) external onlyOwner {
+        owner = new_owner;
+    }
+
+    function create(string calldata _title, string calldata _description, uint256 _total_vote_to_end) external onlyOwner {
         counter += 1;
         proposal_history[counter] = Proposal(_title, _description, 0, 0, 0, _total_vote_to_end, false, true);
     }
