@@ -81,6 +81,12 @@ contract ProposalContract {
 
     // ****************** Helper Functions ***********************
 
+    // Custom state logic: two-thirds supermajority with an abstention cap.
+    // 1. Pass votes count as abstentions and do not weigh for or against the proposal.
+    // 2. Decisive votes (approve + reject) must make up at least half of all votes cast,
+    //    so a proposal cannot succeed when most voters abstain.
+    // 3. Approve votes must reach at least two thirds of the decisive votes.
+    // Integer-only arithmetic: a / b >= 2 / 3  <=>  a * 3 >= b * 2
     function calculateCurrentState() private view returns (bool) {
         Proposal storage proposal = proposal_history[counter];
 
@@ -88,17 +94,17 @@ contract ProposalContract {
         uint256 reject = proposal.reject;
         uint256 pass = proposal.pass;
 
-        if (proposal.pass % 2 == 1) {
-            pass += 1;
-        }
+        uint256 decisive = approve + reject;
+        uint256 total = decisive + pass;
 
-        pass = pass / 2;
-
-        if (approve > reject + pass) {
-            return true;
-        } else {
+        if (decisive == 0) {
             return false;
         }
+
+        bool enough_participation = decisive * 2 >= total;
+        bool supermajority = approve * 3 >= decisive * 2;
+
+        return enough_participation && supermajority;
     }
 
     function isVoted(address _address) private view returns (bool) {
